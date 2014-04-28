@@ -51,20 +51,20 @@ public class MainActivity extends Activity {
         }
 
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
-//            @Override
-//            public void onCallStateChanged(int state, String incomingNumber) {}
-//
-//            @Override
-//            public void onCellLocationChanged(CellLocation location) {}
-//
-//            @Override
-//            public void onDataActivity(int direction) {}
-//
-//            @Override
-//            public void onDataConnectionStateChanged(int state) {}
-//
-//            @Override
-//            public void onServiceStateChanged(ServiceState serviceState) {}
+            // @Override
+            // public void onCallStateChanged(int state, String incomingNumber) {}
+            //
+            // @Override
+            // public void onCellLocationChanged(CellLocation location) {}
+            //
+            // @Override
+            // public void onDataActivity(int direction) {}
+            //
+            // @Override
+            // public void onDataConnectionStateChanged(int state) {}
+            //
+            // @Override
+            // public void onServiceStateChanged(ServiceState serviceState) {}
 
             @Override
             public void onSignalStrengthsChanged(final SignalStrength strength) {
@@ -72,7 +72,20 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         System.out.println("onSignalStrengthsChanged");
-                        MainActivity.this.updateCellSignalStrength(strength.toString());
+                        if (!strength.isGsm()) {
+                            updateCellSignalStrength("Phone not on GSM network");
+                        } else {
+                            String msg = "GSM signal strength: " + strength.getGsmSignalStrength();
+                            msg = msg + " (error rate: " + strength.getGsmBitErrorRate() + ")";
+                            msg = msg + "\nCDMA RSSI: " + strength.getCdmaDbm() + "dBm";
+                            msg = msg + " (Ec/Io: " + strength.getCdmaEcio() + ")";
+                            msg = msg + "\nEVDO RSSI: " + strength.getEvdoDbm() + "dBm";
+                            msg = msg + " (Ec/Io: " + strength.getEvdoEcio();
+                            msg = msg + ", SN/R: " + strength.getEvdoSnr() + ")";
+                            msg = msg + "\n" + strength.toString();
+                            System.out.println(msg);
+                            updateCellSignalStrength(msg);
+                        }
                     }
                 });
             }
