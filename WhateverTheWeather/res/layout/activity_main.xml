@@ -35,7 +35,7 @@
         android:layout_height="wrap_content" />
     
     <Button
-        android:id="@+id/start_recording"
+        android:id="@+id/start_logging"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start_recording" />

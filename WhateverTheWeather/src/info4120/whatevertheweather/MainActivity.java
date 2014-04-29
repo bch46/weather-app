@@ -13,7 +13,6 @@ import android.os.Environment;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,9 +23,15 @@ public class MainActivity extends Activity {
 
     private SensorManager mSensorManager;
     private TextView mSensorsTot, mSensorAvailables, mCellSignal;
-    private Button toggleSensors, recordInput;
-    private boolean sensorsShowing, currentlyRecording;
+    private Button toggleSensors, logInput;
+    private boolean sensorsShowing, currentlyLogging;
 
+    /**
+     * First method to be called in the Android activity lifecycle. Basically does all of the work
+     * of initializing the app so far.
+     * More on the activity lifecycle:
+     * http://developer.android.com/reference/android/app/Activity.html#ActivityLifecycle
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,10 +40,10 @@ public class MainActivity extends Activity {
         mSensorsTot = (TextView) findViewById(R.id.sensor_total);
         mSensorAvailables = (TextView) findViewById(R.id.sensor_avail);
         mCellSignal = (TextView) findViewById(R.id.cell_signal);
-        
+
         mSensorAvailables.setVisibility(View.GONE);
         sensorsShowing = false;
-        
+
         toggleSensors = (Button) findViewById(R.id.show_sensors);
         toggleSensors.setOnClickListener(new OnClickListener() {
             @Override
@@ -46,13 +51,13 @@ public class MainActivity extends Activity {
                 toggleSensorList();
             }
         });
-        
-        currentlyRecording = false;
-        recordInput = (Button) findViewById(R.id.start_recording);
-        recordInput.setOnClickListener(new OnClickListener() {
+
+        currentlyLogging = false;
+        logInput = (Button) findViewById(R.id.start_logging);
+        logInput.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                toggleRecording();
+                toggleLogging();
             }
         });
 
@@ -99,7 +104,7 @@ public class MainActivity extends Activity {
             public void onSignalStrengthsChanged(final SignalStrength strength) {
                 final long timeStamp = System.currentTimeMillis();
                 StringBuilder sb = new StringBuilder();
-                
+
                 if (!strength.isGsm()) {
                     sb.append("Phone not on GSM network");
                 } else {
@@ -111,11 +116,11 @@ public class MainActivity extends Activity {
                     sb.append(" (Ec/Io: ").append(strength.getEvdoEcio());
                     sb.append(", SN/R: ").append(strength.getEvdoSnr()).append(")\n");
                 }
-                
+
                 final String msg = sb.toString();
-                
+
                 updateCellSignalStrength(msg);
-                if (currentlyRecording) {
+                if (currentlyLogging) {
                     logMessage(msg, timeStamp);
                     System.out.println(strength.toString());
                     System.out.println(msg);
@@ -128,18 +133,33 @@ public class MainActivity extends Activity {
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
+    /**
+     * Add a sensor to the list of available sensors
+     * @param s description of the sensor
+     */
     protected void addToSensorList(String s) {
         mSensorAvailables.setText(mSensorAvailables.getText() + s);
     }
 
+    /**
+     * Clear and then replace the sensor list.
+     * @param s New content for sensor list
+     */
     protected void replaceSensorList(String s) {
         mSensorAvailables.setText(s);
     }
 
+    /**
+     * Update the text view which displays cell strength signal information
+     * @param s the cell strength signal information
+     */
     protected void updateCellSignalStrength(String s) {
         mCellSignal.setText(s);
     }
 
+    /**
+     * Toggle showing and hiding the list of sensors
+     */
     private void toggleSensorList() {
         if (sensorsShowing) {
             mSensorAvailables.setVisibility(View.GONE);
@@ -150,15 +170,23 @@ public class MainActivity extends Activity {
         }
         sensorsShowing = !sensorsShowing;
     }
-    
-    private synchronized void toggleRecording() {
-        recordInput.setText(currentlyRecording ? R.string.start_recording : R.string.stop_recording);
-        currentlyRecording = !currentlyRecording;
+
+    /**
+     * Toggle logging of cell signal strength info to a file on the SD card
+     */
+    private synchronized void toggleLogging() {
+        logInput
+                .setText(currentlyLogging ? R.string.start_recording : R.string.stop_recording);
+        currentlyLogging = !currentlyLogging;
     }
-    
+
+    /**
+     * Log a message to a file 'data.txt' in the root of the SD storage.
+     * @param msg The message to log
+     * @param timeStamp The timestamp of the message
+     */
     private void logMessage(String msg, long timeStamp) {
-        File myFile =
-                new File(Environment.getExternalStorageDirectory().getPath(), "data.txt");
+        File myFile = new File(Environment.getExternalStorageDirectory().getPath(), "data.txt");
         try {
             // create a filewriter and set append modus to true
             FileWriter fw = new FileWriter(myFile, true);
@@ -169,13 +197,6 @@ public class MainActivity extends Activity {
             e.printStackTrace();
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
 
 }
