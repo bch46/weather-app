@@ -98,29 +98,28 @@ public class MainActivity extends Activity {
             @Override
             public void onSignalStrengthsChanged(final SignalStrength strength) {
                 final long timeStamp = System.currentTimeMillis();
-                MainActivity.this.runOnUiThread(new Thread() {
-                    @Override
-                    public void run() {
-                        System.out.println("onSignalStrengthsChanged");
-                        if (!strength.isGsm()) {
-                            updateCellSignalStrength("Phone not on GSM network");
-                        } else {
-                            String msg = "GSM signal strength: " + strength.getGsmSignalStrength();
-                            msg = msg + " (error rate: " + strength.getGsmBitErrorRate() + ")";
-                            msg = msg + "\nCDMA RSSI: " + strength.getCdmaDbm() + "dBm";
-                            msg = msg + " (Ec/Io: " + strength.getCdmaEcio() + ")";
-                            msg = msg + "\nEVDO RSSI: " + strength.getEvdoDbm() + "dBm";
-                            msg = msg + " (Ec/Io: " + strength.getEvdoEcio();
-                            msg = msg + ", SN/R: " + strength.getEvdoSnr() + ")\n";
-                            updateCellSignalStrength(msg);
-                            if (currentlyRecording) {
-                                logMessage(msg, timeStamp);
-                                System.out.println(strength.toString());
-                                System.out.println(msg);
-                            }
-                        }
-                    }
-                });
+                StringBuilder sb = new StringBuilder();
+                
+                if (!strength.isGsm()) {
+                    sb.append("Phone not on GSM network");
+                } else {
+                    sb.append("GSM signal strength: ").append(strength.getGsmSignalStrength());
+                    sb.append(" (error rate: ").append(strength.getGsmBitErrorRate()).append(")\n");
+                    sb.append("CDMA RSSI: ").append(strength.getCdmaDbm()).append("dBm");
+                    sb.append(" (Ec/Io: ").append(strength.getCdmaEcio()).append(")\n");
+                    sb.append("EVDO RSSI: ").append(strength.getEvdoDbm()).append("dBm");
+                    sb.append(" (Ec/Io: ").append(strength.getEvdoEcio());
+                    sb.append(", SN/R: ").append(strength.getEvdoSnr()).append(")\n");
+                }
+                
+                final String msg = sb.toString();
+                
+                updateCellSignalStrength(msg);
+                if (currentlyRecording) {
+                    logMessage(msg, timeStamp);
+                    System.out.println(strength.toString());
+                    System.out.println(msg);
+                }
             }
         };
 
