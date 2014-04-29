@@ -8,5 +8,6 @@
     <string name="hide_sensors">Hide sensors</string>
     <string name="start_recording">Start logging</string>
     <string name="stop_recording">Stop logging</string>
+    <string name="log_hint">Log filename</string>
 
 </resources>
